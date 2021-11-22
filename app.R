@@ -38,9 +38,9 @@ ui <- fluidPage(
                         checkboxGroupInput(inputId = "RegionFinder",
                                            label = "Select Region(s):",
                                            choices = c("New England" = "NewEngland", "Mid Atlantic" = "MidAtlantic", "Mid West" = "MidWest", "South", "West", "South West" = "SouthWest", "Pacific"),
-                                           selected = c("New England" = "NewEngland", "Mid Atlantic" = "MidAtlantic", "Mid West" = "MidWest", "South", "West", "South West" = "SouthWest", "Pacific"),
+                                           selected = c("NewEngland", "MidAtlantic", "MidWest", "South", "West", "SouthWest", "Pacific"))
                         )
-                 )),
+                 ),
 
                  hr(),
                  sliderInput(inputId = "Program Length",
@@ -71,6 +71,7 @@ ui <- fluidPage(
                ),
                
                mainPanel(
+                 withSpinner(plotOutput(outputId = "scatterplotFinder"))
                   )
              )),
                  
@@ -90,8 +91,30 @@ ui <- fluidPage(
   
 )
 
-server <- function(input, output){
-
+server <- function(input, output, session){
+  gradData_finder <- reactive({
+    req(input$RegionFinder)
+    filter(Region %in% input$RegionFinder)
+    
+  })
+  
+  fiftystatesCAN_Finder <- reactive({
+    req(input$RegionFinder)
+    filter(fiftystatesCAN, GeoRegion %in% input$RegionFinder)
+  })
+  
+  
+  output$scatterplotFinder <- renderPlot({
+    input$RegionFinder
+    isolate({
+        ggplot() +
+          geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
+          coord_quickmap() +
+          theme_void() +
+          ggtitle("No programs fit selected characteristics. \nPlease modify selections.") +
+          theme(plot.title = element_text(face = "bold", color = "#FF8D1E", size = 20))
+    })
+  })
   
 }
   
