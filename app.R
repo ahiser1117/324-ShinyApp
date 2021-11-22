@@ -26,7 +26,7 @@ ui <- fluidPage(
                  fluidRow(column(3,
                                  checkboxGroupInput(inputId = "FieldFinder",
                                                     label = "Select Field(s):",
-                                                    choices = c("CS" = "C", "Physics" = "P"),
+                                                    choices = c("Computer Science" = "C", "Physics" = "P"),
                                                     selected = c("C","P")),
                                  
                                  checkboxGroupInput(inputId = "DegreeFinder",
@@ -64,9 +64,9 @@ ui <- fluidPage(
                              width = "220px"),
                  sliderInput(inputId = "DeadlineFinder",
                              label = "Select Deadline",
-                             min = as.Date("2021-08-01","%Y-%m-%d"),
+                             min = as.Date(Sys.Date()),
                              max = as.Date("2022-08-01","%Y-%m-%d"),
-                             value=c(as.Date("2021-08-01"),as.Date("2022-08-01")),
+                             value=c(as.Date(Sys.Date()),as.Date("2022-08-01")),
                              timeFormat="%Y-%m-%d")
                ),
                
