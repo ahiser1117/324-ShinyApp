@@ -9,7 +9,7 @@ library(shinythemes)
 library(maps)
 
 fiftystatesCAN <- read.csv("/Users/leemingi/Documents/324-ShinyApp/fiftystatesCAN.csv")
-gradData <- read.csv("/Users/leemingi/Documents/324-ShinyApp/gradData.csv")
+gradData <- read.csv("/Users/leemingi/Documents/324-ShinyApp/gradData1.csv")
 
 ui <- fluidPage(
 
@@ -26,24 +26,24 @@ ui <- fluidPage(
                  fluidRow(column(3,
                                  checkboxGroupInput(inputId = "FieldFinder",
                                                     label = "Select Field(s):",
-                                                    choices = c("CS" = "C", "Physics" = "P"),
-                                                    selected = c("C","P")),
+                                                    choices = c("Computer Science", "Physics"),
+                                                    selected =  c("Computer Science", "Physics")),
                                  
                                  checkboxGroupInput(inputId = "DegreeFinder",
                                                     label = "Select Degree(s):",
-                                                    choices = c("Master", "PHD"),
-                                                    selected = c("Master","PHD"))
+                                                    choices = c("Master", "Phd"),
+                                                    selected = c("Master","Phd"))
                  ),
                  column(6, offset = 2,
                         checkboxGroupInput(inputId = "RegionFinder",
                                            label = "Select Region(s):",
                                            choices = c("New England" = "NewEngland", "Mid Atlantic" = "MidAtlantic", "Mid West" = "MidWest", "South", "West", "South West" = "SouthWest", "Pacific"),
-                                           selected = c("New England" = "NewEngland", "Mid Atlantic" = "MidAtlantic", "Mid West" = "MidWest", "South", "West", "South West" = "SouthWest", "Pacific"),
+                                           selected = c("NewEngland", "MidAtlantic", "MidWest", "South", "West", "SouthWest", "Pacific"))
                         )
-                 )),
+                 ),
 
                  hr(),
-                 sliderInput(inputId = "Program Length",
+                 sliderInput(inputId = "LengthFinder",
                              label = "Select Program Length",
                              min = 1,
                              max = 10,
@@ -64,13 +64,14 @@ ui <- fluidPage(
                              width = "220px"),
                  sliderInput(inputId = "DeadlineFinder",
                              label = "Select Deadline",
-                             min = as.Date("2021-08-01","%Y-%m-%d"),
+                             min = as.Date(Sys.Date()),
                              max = as.Date("2022-08-01","%Y-%m-%d"),
-                             value=c(as.Date("2021-08-01"),as.Date("2022-08-01")),
+                             value=c(as.Date(Sys.Date()),as.Date("2022-08-01")),
                              timeFormat="%Y-%m-%d")
                ),
                
                mainPanel(
+                 withSpinner(plotOutput(outputId = "scatterplotFinder"))
                   )
              )),
                  
@@ -90,8 +91,75 @@ ui <- fluidPage(
   
 )
 
-server <- function(input, output){
-
+server <- function(input, output, session){
+  gradData_finder <- reactive({
+    req(input$RegionFinder)
+    req(input$FieldFinder)
+    req(input$DegreeFinder)
+    req(input$LengthFinder)
+    
+    
+    filter(gradData, Region %in% input$RegionFinder) %>%
+    filter(Field %in% input$FieldFinder) %>%
+    filter(Degree %in% input$DegreeFinder) %>%
+    filter(ProgramLength >= input$LengthFinder[1], ProgramLength <= input$LengthFinder[2])
+      
+    
+  })
+  
+  fiftystatesCAN_Finder <- reactive({
+    req(input$RegionFinder)
+    filter(fiftystatesCAN, GeoRegion %in% input$RegionFinder)
+  })
+  
+  
+  
+  
+  output$scatterplotFinder <- renderPlot({
+    input$FieldFinder
+    input$RegionFinder
+    input$DegreeFinder
+    input$LengthFinder
+    
+    isolate({
+      if (length(gradData_finder()$Address) == 0) {
+        ggplot() +
+          geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
+          coord_quickmap() +
+          theme_void() +
+          ggtitle("No programs fit selected characteristics. \nPlease modify selections.") +
+          theme(plot.title = element_text(face = "bold", color = "#FF8D1E", size = 20))
+      }
+      else {
+        ggplot() +
+          geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
+          coord_quickmap() +
+          guides(fill = FALSE) +
+          geom_point(data = gradData_finder(), aes(x = lon, y = lat, color = Field, shape=Degree),  alpha = 0.5) +
+          theme_void() +
+          labs(color = "Field") +
+          {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "#1E90FF", "Physics" = "#FF8D1E"))} +
+          {if(length(input$FieldFinder) > 1)
+            scale_color_manual(values = c("Computer Science" = "blue", "Physics" = "red"))} +
+          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "Phd" = "triangle"))} +
+          {if(length(input$DegreeFinder) > 1)
+            scale_shape_manual(values = c("Master" = "circle", "Phd" = "triangle"))} +
+          
+          theme(axis.text = element_blank(), axis.ticks = element_blank()) +
+          theme(plot.title = element_text(hjust=0.5, face = "bold")) +
+          theme(plot.background = element_rect(fill = "white"), plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")) +
+          guides(alpha = FALSE) +
+          theme(legend.text = element_text(size = 12),
+                legend.title = element_text(size = 15)) +
+          theme(plot.background = element_rect(
+            color = "white"
+          ))
+        
+      }
+      
+    })
+  })
+  
   
 }
   
