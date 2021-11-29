@@ -16,7 +16,7 @@ ui <- fluidPage(
   navbarPage(
     title = 'Team PHD',theme = shinytheme("united"),
     tabPanel("Graduate Program Finder",
-             HTML("<h1><center><b>Graduate School</b> Finder</center></h1>"),
+             HTML("<h1><center><b>Graduate School</b> Finder</cexnter></h1>"),
              br(), br(),br(), br(),
              
              ## Sidebar
@@ -73,13 +73,12 @@ ui <- fluidPage(
                mainPanel(
                  withSpinner(plotOutput(outputId = "scatterplotFinder")),
                  hr(),
-                 fluidRow(column(7,
-                                 helpText("Tip: Click locations to populate table below with information on schools in a specific area")
-                 ),
-                 dataTableOutput('table')
-                 )
-             )),
-                 
+                 br(),
+                 fluidRow(                
+                   dataTableOutput('table')))
+             )
+    ),
+
 
     tabPanel("Program Comparison",
              br(), br(),br(), br()),
@@ -94,7 +93,7 @@ ui <- fluidPage(
                tabPanel('Reflection'))
   )
   
-))
+)
 
 server <- function(input, output, session){
   gradData_finder <- reactive({
