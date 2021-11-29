@@ -8,8 +8,8 @@ library(shinycssloaders)
 library(shinythemes)
 library(maps)
 
-fiftystatesCAN <- read.csv("/Users/leemingi/Documents/324-ShinyApp/fiftystatesCAN.csv")
-gradData <- read.csv("/Users/leemingi/Documents/324-ShinyApp/gradData1.csv")
+fiftystatesCAN <- read.csv("fiftystatesCAN.csv")
+gradData <- read.csv("gradData1.csv")
 
 ui <- fluidPage(
 
@@ -71,8 +71,13 @@ ui <- fluidPage(
                ),
                
                mainPanel(
-                 withSpinner(plotOutput(outputId = "scatterplotFinder"))
-                  )
+                 withSpinner(plotOutput(outputId = "scatterplotFinder")),
+                 hr(),
+                 fluidRow(column(7,
+                                 helpText("Tip: Click locations to populate table below with information on schools in a specific area")
+                 ),
+                 dataTableOutput('table')
+                 )
              )),
                  
 
@@ -89,7 +94,7 @@ ui <- fluidPage(
                tabPanel('Reflection'))
   )
   
-)
+))
 
 server <- function(input, output, session){
   gradData_finder <- reactive({
@@ -135,7 +140,7 @@ server <- function(input, output, session){
           geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
           coord_quickmap() +
           guides(fill = FALSE) +
-          geom_point(data = gradData_finder(), aes(x = lon, y = lat, color = Field, shape=Degree),  alpha = 0.5) +
+          geom_point(data = gradData_finder(), aes(x = lon, y = lat, color = Field, shape=Degree), size = 4, alpha = 0.5) +
           theme_void() +
           labs(color = "Field") +
           {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "#1E90FF", "Physics" = "#FF8D1E"))} +
@@ -144,7 +149,6 @@ server <- function(input, output, session){
           {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "Phd" = "triangle"))} +
           {if(length(input$DegreeFinder) > 1)
             scale_shape_manual(values = c("Master" = "circle", "Phd" = "triangle"))} +
-          
           theme(axis.text = element_blank(), axis.ticks = element_blank()) +
           theme(plot.title = element_text(hjust=0.5, face = "bold")) +
           theme(plot.background = element_rect(fill = "white"), plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")) +
@@ -159,6 +163,9 @@ server <- function(input, output, session){
       
     })
   })
+  
+  output$table <- renderDataTable({
+    gradData})
   
   
 }
