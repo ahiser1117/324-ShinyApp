@@ -6,6 +6,7 @@ library(ggrepel)
 library(tidyr)
 library(shinycssloaders)
 library(shinythemes)
+library(plotly)
 library(maps)
 
 fiftystatesCAN <- read.csv("fiftystatesCAN.csv")
@@ -71,7 +72,7 @@ ui <- fluidPage(
                ),
                
                mainPanel(
-                 withSpinner(plotOutput(outputId = "scatterplotFinder")),
+                 withSpinner(plotlyOutput(outputId = "scatterplotFinder")),
                  hr(),
                  br(),
                  fluidRow(                
@@ -119,7 +120,7 @@ server <- function(input, output, session){
   
   
   
-  output$scatterplotFinder <- renderPlot({
+  output$scatterplotFinder <- renderPlotly({
     input$FieldFinder
     input$RegionFinder
     input$DegreeFinder
@@ -127,19 +128,20 @@ server <- function(input, output, session){
     
     isolate({
       if (length(gradData_finder()$Address) == 0) {
-        ggplot() +
+        p <- ggplot() +
           geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
           coord_quickmap() +
           theme_void() +
           ggtitle("No programs fit selected characteristics. \nPlease modify selections.") +
           theme(plot.title = element_text(face = "bold", color = "#FF8D1E", size = 20))
+        ggplotly(p)
       }
       else {
-        ggplot() +
+        p <-    ggplot() +
           geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
           coord_quickmap() +
           guides(fill = FALSE) +
-          geom_point(data = gradData_finder(), aes(x = lon, y = lat, color = Field, shape=Degree), size = 4, alpha = 0.5) +
+          geom_point(data = gradData_finder(), aes(text=Name, x = lon, y = lat, color = Field, shape=Degree), size = 2, alpha = 0.5) +
           theme_void() +
           labs(color = "Field") +
           {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "#1E90FF", "Physics" = "#FF8D1E"))} +
@@ -147,22 +149,37 @@ server <- function(input, output, session){
             scale_color_manual(values = c("Computer Science" = "blue", "Physics" = "red"))} +
           {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "Phd" = "triangle"))} +
           {if(length(input$DegreeFinder) > 1)
-            scale_shape_manual(values = c("Master" = "circle", "Phd" = "triangle"))} +
-          theme(axis.text = element_blank(), axis.ticks = element_blank()) +
-          theme(plot.title = element_text(hjust=0.5, face = "bold")) +
-          theme(plot.background = element_rect(fill = "white"), plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")) +
-          guides(alpha = FALSE) +
-          theme(legend.text = element_text(size = 12),
-                legend.title = element_text(size = 15)) +
-          theme(plot.background = element_rect(
-            color = "white"
-          ))
+            scale_shape_manual(values = c("Master" = "circle", "Phd" = "triangle"))}
+        
+        
+        ggplotly(p,tooltip = c("Name","Field"))
+        
         
       }
       
     })
   })
   
+  
+  user_clickFinder <- reactiveValues()
+  reactive({
+    user_clickFinder$DT <- data.frame(matrix(0, ncol = ncol(gradData), nrow = 1))
+    names(user_clickFinder$DT) <- colnames(gradData)
+  })
+  
+  
+  observeEvent(input$click_plotFinder, {
+    add_row <-     nearPoints(gradData_finder(), input$click_plotFinder, xvar = "lon", yvar = "lat", threshold = 5)
+    user_clickFinder$DT <- rbind(add_row, user_clickFinder$DT)
+  })
+
+  
+  brushFinder <- reactive({
+    req(length(user_clickFinder$DT) > 1)
+    user_clickFinder$DT
+  })
+  
+    
   output$table <- renderDataTable({
     gradData})
   
