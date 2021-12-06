@@ -10,7 +10,7 @@ library(plotly)
 library(maps)
 
 fiftystatesCAN <- read.csv("fiftystatesCAN.csv")
-gradData <- read.csv("gradData1.csv")
+gradData <- read.csv("gradData2.csv")
 
 ui <- fluidPage(
 
@@ -32,8 +32,8 @@ ui <- fluidPage(
                                  
                                  checkboxGroupInput(inputId = "DegreeFinder",
                                                     label = "Select Degree(s):",
-                                                    choices = c("Master", "Phd"),
-                                                    selected = c("Master","Phd"))
+                                                    choices = c("Master", "PhD"),
+                                                    selected = c("Master","PhD"))
                  ),
                  column(6, offset = 2,
                         checkboxGroupInput(inputId = "RegionFinder",
@@ -73,6 +73,7 @@ ui <- fluidPage(
                
                mainPanel(
                  withSpinner(plotlyOutput(outputId = "scatterplotFinder")),
+                 htmlOutput("info"),
                  hr(),
                  br(),
                  fluidRow(                
@@ -147,12 +148,12 @@ server <- function(input, output, session){
           {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "#1E90FF", "Physics" = "#FF8D1E"))} +
           {if(length(input$FieldFinder) > 1)
             scale_color_manual(values = c("Computer Science" = "blue", "Physics" = "red"))} +
-          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "Phd" = "triangle"))} +
+          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "PhD" = "triangle"))} +
           {if(length(input$DegreeFinder) > 1)
-            scale_shape_manual(values = c("Master" = "circle", "Phd" = "triangle"))}
+            scale_shape_manual(values = c("Master" = "circle", "PhD" = "triangle"))}
+          
         
-        
-        ggplotly(p,tooltip = c("Name","Field"))
+        ggplotly(p,tooltip = c("Name","Field"),source = "Plot1")
         
         
       }
@@ -161,27 +162,29 @@ server <- function(input, output, session){
   })
   
   
-  user_clickFinder <- reactiveValues()
-  reactive({
-    user_clickFinder$DT <- data.frame(matrix(0, ncol = ncol(gradData), nrow = 1))
-    names(user_clickFinder$DT) <- colnames(gradData)
+  
+  output$info <- renderUI({
+    d <- event_data("plotly_click", source = "Plot1")
+    
+    if (is.null(d)) {
+      "Click Point to See Detailed Information"
+    } else {
+      str1 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(22)])
+      str2 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(23)])
+      str3 <- a(gradData_finder()[gradData_finder()$lon==d$x,][,c(24)], href=gradData_finder()[gradData_finder()$lon==d$x,][,c(24)])
+      str4 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(25)])
+      str5 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(26)])
+      HTML(paste("University Detail: \n",str1, "\n",
+                 tags$img(src = str5), "\n",
+                 "Program Detail: \n",str2,"\n", 
+                 "Link to Faculty: \n",str3, "\n", 
+                 "Professors: \n",str4, "\n",  
+                 "\n", sep = '<br//>'))
+    }
   })
-  
-  
-  observeEvent(input$click_plotFinder, {
-    add_row <-     nearPoints(gradData_finder(), input$click_plotFinder, xvar = "lon", yvar = "lat", threshold = 5)
-    user_clickFinder$DT <- rbind(add_row, user_clickFinder$DT)
-  })
-
-  
-  brushFinder <- reactive({
-    req(length(user_clickFinder$DT) > 1)
-    user_clickFinder$DT
-  })
-  
     
   output$table <- renderDataTable({
-    gradData})
+    gradData[c(1,2,3,4,8,9,10,11,12)]})
   
   
 }
