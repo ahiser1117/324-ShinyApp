@@ -6,17 +6,18 @@ library(ggrepel)
 library(tidyr)
 library(shinycssloaders)
 library(shinythemes)
+library(plotly)
 library(maps)
 
 fiftystatesCAN <- read.csv("fiftystatesCAN.csv")
-gradData <- read.csv("gradData1.csv")
+gradData <- read.csv("gradData2.csv")
 
 ui <- fluidPage(
 
   navbarPage(
     title = 'Team PHD',theme = shinytheme("united"),
     tabPanel("Graduate Program Finder",
-             HTML("<h1><center><b>Graduate School</b> Finder</center></h1>"),
+             HTML("<h1><center><b>Graduate School</b> Finder</cexnter></h1>"),
              br(), br(),br(), br(),
              
              ## Sidebar
@@ -31,8 +32,8 @@ ui <- fluidPage(
                                  
                                  checkboxGroupInput(inputId = "DegreeFinder",
                                                     label = "Select Degree(s):",
-                                                    choices = c("Master", "Phd"),
-                                                    selected = c("Master","Phd"))
+                                                    choices = c("Master", "PhD"),
+                                                    selected = c("Master","PhD"))
                  ),
                  column(6, offset = 2,
                         checkboxGroupInput(inputId = "RegionFinder",
@@ -71,15 +72,15 @@ ui <- fluidPage(
                ),
                
                mainPanel(
-                 withSpinner(plotOutput(outputId = "scatterplotFinder")),
+                 withSpinner(plotlyOutput(outputId = "scatterplotFinder")),
+                 htmlOutput("info"),
                  hr(),
-                 fluidRow(column(7,
-                                 helpText("Tip: Click locations to populate table below with information on schools in a specific area")
-                 ),
-                 dataTableOutput('table')
-                 )
-             )),
-                 
+                 br(),
+                 fluidRow(                
+                   dataTableOutput('table')))
+             )
+    ),
+
 
     tabPanel("Program Comparison",
              br(), br(),br(), br()),
@@ -94,7 +95,7 @@ ui <- fluidPage(
                tabPanel('Reflection'))
   )
   
-))
+)
 
 server <- function(input, output, session){
   gradData_finder <- reactive({
@@ -120,7 +121,7 @@ server <- function(input, output, session){
   
   
   
-  output$scatterplotFinder <- renderPlot({
+  output$scatterplotFinder <- renderPlotly({
     input$FieldFinder
     input$RegionFinder
     input$DegreeFinder
@@ -128,44 +129,62 @@ server <- function(input, output, session){
     
     isolate({
       if (length(gradData_finder()$Address) == 0) {
-        ggplot() +
+        p <- ggplot() +
           geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
           coord_quickmap() +
           theme_void() +
           ggtitle("No programs fit selected characteristics. \nPlease modify selections.") +
           theme(plot.title = element_text(face = "bold", color = "#FF8D1E", size = 20))
+        ggplotly(p)
       }
       else {
-        ggplot() +
+        p <-    ggplot() +
           geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
           coord_quickmap() +
           guides(fill = FALSE) +
-          geom_point(data = gradData_finder(), aes(x = lon, y = lat, color = Field, shape=Degree), size = 4, alpha = 0.5) +
+          geom_point(data = gradData_finder(), aes(text=Name, x = lon, y = lat, color = Field, shape=Degree), size = 2, alpha = 0.5) +
           theme_void() +
           labs(color = "Field") +
           {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "#1E90FF", "Physics" = "#FF8D1E"))} +
           {if(length(input$FieldFinder) > 1)
             scale_color_manual(values = c("Computer Science" = "blue", "Physics" = "red"))} +
-          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "Phd" = "triangle"))} +
+          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "PhD" = "triangle"))} +
           {if(length(input$DegreeFinder) > 1)
-            scale_shape_manual(values = c("Master" = "circle", "Phd" = "triangle"))} +
-          theme(axis.text = element_blank(), axis.ticks = element_blank()) +
-          theme(plot.title = element_text(hjust=0.5, face = "bold")) +
-          theme(plot.background = element_rect(fill = "white"), plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")) +
-          guides(alpha = FALSE) +
-          theme(legend.text = element_text(size = 12),
-                legend.title = element_text(size = 15)) +
-          theme(plot.background = element_rect(
-            color = "white"
-          ))
+            scale_shape_manual(values = c("Master" = "circle", "PhD" = "triangle"))}
+          
+        
+        ggplotly(p,tooltip = c("Name","Field"),source = "Plot1")
+        
         
       }
       
     })
   })
   
+  
+  
+  output$info <- renderUI({
+    d <- event_data("plotly_click", source = "Plot1")
+    
+    if (is.null(d)) {
+      "Click Point to See Detailed Information"
+    } else {
+      str1 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(22)])
+      str2 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(23)])
+      str3 <- a(gradData_finder()[gradData_finder()$lon==d$x,][,c(24)], href=gradData_finder()[gradData_finder()$lon==d$x,][,c(24)])
+      str4 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(25)])
+      str5 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(26)])
+      HTML(paste("University Detail: \n",str1, "\n",
+                 tags$img(src = str5), "\n",
+                 "Program Detail: \n",str2,"\n", 
+                 "Link to Faculty: \n",str3, "\n", 
+                 "Professors: \n",str4, "\n",  
+                 "\n", sep = '<br//>'))
+    }
+  })
+    
   output$table <- renderDataTable({
-    gradData})
+    gradData[c(1,2,3,4,8,9,10,11,12)]})
   
   
 }
