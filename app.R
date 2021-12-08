@@ -10,7 +10,7 @@ library(plotly)
 library(maps)
 
 fiftystatesCAN <- read.csv("fiftystatesCAN.csv")
-gradData <- read.csv("gradData2.csv")
+gradData <- read.csv("gradData.csv")
 
 ui <- fluidPage(
 
@@ -27,13 +27,13 @@ ui <- fluidPage(
                  fluidRow(column(3,
                                  checkboxGroupInput(inputId = "FieldFinder",
                                                     label = "Select Field(s):",
-                                                    choices = c("Computer Science", "Physics"),
-                                                    selected =  c("Computer Science", "Physics")),
+                                                    choices = c("Computer Science", "Data Science", "Machine Learning","Computational Science and Engineering", "Electrical Engineering"),
+                                                    selected =  c("Computer Science", "Data Science", "Machine Learning","Computational Science and Engineering", "Electrical Engineering")),
                                  
                                  checkboxGroupInput(inputId = "DegreeFinder",
                                                     label = "Select Degree(s):",
-                                                    choices = c("Master", "PhD"),
-                                                    selected = c("Master","PhD"))
+                                                    choices = c("Master", "Phd"),
+                                                    selected = c("Master","Phd"))
                  ),
                  column(6, offset = 2,
                         checkboxGroupInput(inputId = "RegionFinder",
@@ -52,27 +52,28 @@ ui <- fluidPage(
                              width = "220px"),
                  hr(),
                  
-                 checkboxGroupInput(inputId = "Requirement",
+                 checkboxGroupInput(inputId = "RequirementFinder",
                                     label = "Select Requirement(s):",
                                     choices = c("GRE", "Online Application", "Letters of Application", "Transcript", "CV or Resume", "IELTS", "TOEFL"),
                                     selected = c("GRE", "Online Application", "Letters of Application", "Transcript", "CV or Resume", "IELTS", "TOEFL")),
                                     
-                 sliderInput(inputId = "TuiotionFinder",
+                 sliderInput(inputId = "TuitionFinder",
                              label = "Tuition per Year ($)",
                              min = 0,
-                             max = 100000,
-                             value = c(0,100000),
+                             max = 99999,
+                             value = c(0,99999),
                              width = "220px"),
                  sliderInput(inputId = "DeadlineFinder",
                              label = "Select Deadline",
-                             min = as.Date(Sys.Date()),
+                             min = as.Date("2021-08-01","%Y-%m-%d"),
                              max = as.Date("2022-08-01","%Y-%m-%d"),
-                             value=c(as.Date(Sys.Date()),as.Date("2022-08-01")),
+                             value=c(as.Date("2021-08-01"),as.Date("2022-08-01")),
                              timeFormat="%Y-%m-%d")
                ),
                
                mainPanel(
                  withSpinner(plotlyOutput(outputId = "scatterplotFinder")),
+                 hr(),
                  htmlOutput("info"),
                  hr(),
                  br(),
@@ -81,10 +82,6 @@ ui <- fluidPage(
              )
     ),
 
-
-    tabPanel("Program Comparison",
-             br(), br(),br(), br()),
-    
     tabPanel("Data Visualization",
              br(), br(),br(), br()),
 
@@ -103,12 +100,17 @@ server <- function(input, output, session){
     req(input$FieldFinder)
     req(input$DegreeFinder)
     req(input$LengthFinder)
+    req(input$TuitionFinder)
+    req(input$DeadlineFinder)
     
     
     filter(gradData, Region %in% input$RegionFinder) %>%
     filter(Field %in% input$FieldFinder) %>%
     filter(Degree %in% input$DegreeFinder) %>%
-    filter(ProgramLength >= input$LengthFinder[1], ProgramLength <= input$LengthFinder[2])
+    filter(ProgramLength >= input$LengthFinder[1], ProgramLength <= input$LengthFinder[2]) %>%
+    filter(Tuition >= input$TuitionFinder[1], Tuition <= input$TuitionFinder[2]) %>%
+    filter(as.Date(Deadlines) >= input$DeadlineFinder[1], as.Date(Deadlines) <= input$DeadlineFinder[2])
+    
       
     
   })
@@ -126,6 +128,8 @@ server <- function(input, output, session){
     input$RegionFinder
     input$DegreeFinder
     input$LengthFinder
+    input$TuitionFinder
+    input$DeadlineFinder
     
     isolate({
       if (length(gradData_finder()$Address) == 0) {
@@ -145,15 +149,15 @@ server <- function(input, output, session){
           geom_point(data = gradData_finder(), aes(text=Name, x = lon, y = lat, color = Field, shape=Degree), size = 2, alpha = 0.5) +
           theme_void() +
           labs(color = "Field") +
-          {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "#1E90FF", "Physics" = "#FF8D1E"))} +
+          {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "red", "Data Science" = "orange", "Machine Learning" = "black","Computational Science and Engineering" = "green", "Electrical Engineering" = "blue"))} +
           {if(length(input$FieldFinder) > 1)
-            scale_color_manual(values = c("Computer Science" = "blue", "Physics" = "red"))} +
-          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "PhD" = "triangle"))} +
+            scale_color_manual(values = c("Computer Science" = "red", "Data Science" = "orange", "Machine Learning" = "black","Computational Science and Engineering" = "green", "Electrical Engineering" = "blue"))} +
+          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "Phd" = "star"))} +
           {if(length(input$DegreeFinder) > 1)
-            scale_shape_manual(values = c("Master" = "circle", "PhD" = "triangle"))}
+            scale_shape_manual(values = c("Master" = "circle", "Phd" = "star"))}
           
+        ggplotly(p,tooltip = c("Name","Field"),source = "Plot1")%>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
         
-        ggplotly(p,tooltip = c("Name","Field"),source = "Plot1")
         
         
       }
