@@ -183,13 +183,32 @@ server <- function(input, output, session){
       str3 <- a(gradData_finder()[gradData_finder()$lon==d$x,][,c(24)], href=gradData_finder()[gradData_finder()$lon==d$x,][,c(24)])
       str4 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(25)])
       str5 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(26)])
-      
+      str6<- paste("GRE: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(13)])
+      str7<- paste( "Online Apply: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(14)])
+      str8<- paste("Recommendation Letters #: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(15)])
+      str9<- paste("Personal Statement: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(16)])
+      str10<- paste("Transcipt: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(17)])
+      str11<- paste("Resume or CV: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(18)])
+      str12<- paste("IELTS: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(19)])
+      str13<- paste("TOEFL: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(20)])
+      str14<- paste("ELP: ", gradData_finder()[gradData_finder()$lon==d$x,][,c(21)])
+
       
       HTML(paste("University Detail: \n",str1, "\n",
                  tags$img(src = str5, width = "80%", height = "80%"), "\n",
                  "Program Detail: \n",str2,"\n", 
                  "Link to Faculty: \n",str3, "\n", 
                  "Professors: \n",str4, "\n",  
+                 "Application Requirements: \n",
+                 str6,
+                 str7,
+                 str8,
+                 str9,
+                 str10,
+                 str11,
+                 str12,
+                 str13,
+                 str14,
                  "\n", sep = '<br//>'))
     }
   })
