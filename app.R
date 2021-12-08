@@ -52,17 +52,15 @@ ui <- fluidPage(
                              width = "220px"),
                  hr(),
                  
-                 checkboxGroupInput(inputId = "RequirementFinder",
-                                    label = "Select Requirement(s):",
-                                    choices = c("GRE", "Online Application", "Letters of Application", "Transcript", "CV or Resume", "IELTS", "TOEFL"),
-                                    selected = c("GRE", "Online Application", "Letters of Application", "Transcript", "CV or Resume", "IELTS", "TOEFL")),
-                                    
                  sliderInput(inputId = "TuitionFinder",
                              label = "Tuition per Year ($)",
                              min = 0,
                              max = 99999,
                              value = c(0,99999),
                              width = "220px"),
+                 
+                 hr(),
+                
                  sliderInput(inputId = "DeadlineFinder",
                              label = "Select Deadline",
                              min = as.Date("2021-08-01","%Y-%m-%d"),
@@ -111,9 +109,7 @@ server <- function(input, output, session){
     filter(Tuition >= input$TuitionFinder[1], Tuition <= input$TuitionFinder[2]) %>%
     filter(as.Date(Deadlines) >= input$DeadlineFinder[1], as.Date(Deadlines) <= input$DeadlineFinder[2])
     
-      
-    
-  })
+    })
   
   fiftystatesCAN_Finder <- reactive({
     req(input$RegionFinder)
@@ -146,7 +142,18 @@ server <- function(input, output, session){
           geom_polygon(data = fiftystatesCAN_Finder(), aes(x = long, y = lat, group = group), color = "white", fill = "grey") +
           coord_quickmap() +
           guides(fill = FALSE) +
-          geom_point(data = gradData_finder(), aes(text=Name, x = lon, y = lat, color = Field, shape=Degree), size = 2, alpha = 0.5) +
+          geom_point(data = gradData_finder(), aes(text=paste(Name,
+                                                              '<br>',Field, '/' , Degree,
+                                                              '<br>Tuition($): ',Tuition,
+                                                              '<br>Application Fee($): ',ApplicationFee,
+                                                              '<br>Deadline: ', Deadlines,
+                                                              '<br>Program Length: ', ProgramLength, "years",
+                                                              '<br>GRE: ', GRE, "/ Online Apply: ", ApplyOnline, "/ Recommendation Letters #: ", RecLetters,
+                                                              '<br>Personal Statement: ', PersonalStatement, "/ Transcipt: ", Transcipt, "/ Resume or CV: ", ResumeCV,
+                                                              '<br>IELTS: ', IELTS, "/ TOEFL: ", TOEFL, "/ ELP: ", ELP
+                                                              ),
+                                                   x = lon, y = lat, color = Field, 
+                                                   shape=Degree), size = 2, alpha = 0.5) +
           theme_void() +
           labs(color = "Field") +
           {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "red", "Data Science" = "orange", "Machine Learning" = "black","Computational Science and Engineering" = "green", "Electrical Engineering" = "blue"))} +
@@ -156,7 +163,7 @@ server <- function(input, output, session){
           {if(length(input$DegreeFinder) > 1)
             scale_shape_manual(values = c("Master" = "circle", "Phd" = "star"))}
           
-        ggplotly(p,tooltip = c("Name","Field"),source = "Plot1")%>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
+        ggplotly(p,tooltip = "text",source = "Plot1")%>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
         
         
         
