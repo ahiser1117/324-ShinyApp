@@ -15,7 +15,7 @@ gradData <- read.csv("gradData.csv")
 ui <- fluidPage(
 
   navbarPage(
-    title = 'Team PHD',theme = shinytheme("united"),
+    title = 'Team PhD',theme = shinytheme("united"),
     tabPanel("Graduate Program Finder",
              HTML("<h1><center><b>Graduate School</b> Finder</cexnter></h1>"),
              br(), br(),br(), br(),
@@ -32,8 +32,8 @@ ui <- fluidPage(
                                  
                                  checkboxGroupInput(inputId = "DegreeFinder",
                                                     label = "Select Degree(s):",
-                                                    choices = c("Master", "Phd"),
-                                                    selected = c("Master","Phd"))
+                                                    choices = c("Master", "PhD"),
+                                                    selected = c("Master","PhD"))
                  ),
                  column(6, offset = 2,
                         checkboxGroupInput(inputId = "RegionFinder",
@@ -147,10 +147,8 @@ server <- function(input, output, session){
                                                               '<br>Tuition($): ',Tuition,
                                                               '<br>Application Fee($): ',ApplicationFee,
                                                               '<br>Deadline: ', Deadlines,
-                                                              '<br>Program Length: ', ProgramLength, "years",
-                                                              '<br>GRE: ', GRE, "/ Online Apply: ", ApplyOnline, "/ Recommendation Letters #: ", RecLetters,
-                                                              '<br>Personal Statement: ', PersonalStatement, "/ Transcipt: ", Transcipt, "/ Resume or CV: ", ResumeCV,
-                                                              '<br>IELTS: ', IELTS, "/ TOEFL: ", TOEFL, "/ ELP: ", ELP
+                                                              '<br>Program Length: ', ProgramLength, "years"
+
                                                               ),
                                                    x = lon, y = lat, color = Field, 
                                                    shape=Degree), size = 2, alpha = 0.5) +
@@ -159,9 +157,9 @@ server <- function(input, output, session){
           {if(length(input$FieldFinder) <= 1) scale_color_manual(guide = "none", values = c("Computer Science" = "red", "Data Science" = "orange", "Machine Learning" = "black","Computational Science and Engineering" = "green", "Electrical Engineering" = "blue"))} +
           {if(length(input$FieldFinder) > 1)
             scale_color_manual(values = c("Computer Science" = "red", "Data Science" = "orange", "Machine Learning" = "black","Computational Science and Engineering" = "green", "Electrical Engineering" = "blue"))} +
-          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "Phd" = "star"))} +
+          {if(length(input$DegreeFinder) <= 1) scale_shape_manual(guide = "none", values = c("Master" = "circle", "PhD" = "star"))} +
           {if(length(input$DegreeFinder) > 1)
-            scale_shape_manual(values = c("Master" = "circle", "Phd" = "star"))}
+            scale_shape_manual(values = c("Master" = "circle", "PhD" = "star"))}
           
         ggplotly(p,tooltip = "text",source = "Plot1")%>% layout(legend = list(orientation = "h", x = 0.4, y = -0.2))
         
@@ -185,8 +183,10 @@ server <- function(input, output, session){
       str3 <- a(gradData_finder()[gradData_finder()$lon==d$x,][,c(24)], href=gradData_finder()[gradData_finder()$lon==d$x,][,c(24)])
       str4 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(25)])
       str5 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(26)])
+      
+      
       HTML(paste("University Detail: \n",str1, "\n",
-                 tags$img(src = str5), "\n",
+                 tags$img(src = str5, width = "80%", height = "80%"), "\n",
                  "Program Detail: \n",str2,"\n", 
                  "Link to Faculty: \n",str3, "\n", 
                  "Professors: \n",str4, "\n",  
