@@ -1,6 +1,6 @@
 ## Project Scope
 
-**Project Owner:** Alex Hiser (Week 1)
+**Project Owner:** Alex Hiser (Week 3)
 
 **Project Dates:** 11/08/2021 - 12/13/2021
 
@@ -10,6 +10,7 @@
 - Our insights from the data and the project.
 - Shiny app that shares this data in a visually appealing way and is user friendly.
 - Product Video that showcases the uses and features of our App.
+- G-ArchiTech Document
 
 **Project Tasks:**
 
@@ -27,6 +28,12 @@
 | Finish first set of data      | Get the needed data for all of the programs on our list so far, then find more programs of interest. | 11/22/2021-11/29/2021 |
 | Front page functionality      | Get the front page of the shiny app working as we would like. | 11/22/2021-11/29/2021 |
 | Data Page                     | Get the first draft of a single programs page in the shiny app. | 11/22/2021-11/29/2021 |
+| Demo 3 Presentation           | A PowerPoint presentation updating the class on our progress. | 11/29/2021            |
+| Finish Shiny App              | Add in any final functionality of the shiny app.             | 11/29/2021-12/6/2021  |
+| Add Data                      | Fill out the rest of our data into the Shiny App             | 11/29/2021-12/6/2021  |
+| Create Video                  | Create product video showing off the Final app and its use   | 11/29/2021-12/6/2021  |
+| Other Deliverables for Demo 4 | Create relevant materials to be shown, document for G-ArchiTech, other responses. | 11/29/2021-12/6/2021  |
+| Demo 4 Presentation           | Our final presentation of our app its features and our process through the project. | 12/6/2021             |
 
 **Updated Notes:**
 
@@ -38,19 +45,19 @@
 - 11/17/2021: Opening page of the shiny app development has begun.
 - 11/21/2021: Expanded project scope and transferred grad school data to excel sheet.
 - 11/21/2021: Created Demo 2 presentation, and other deliverables.
+- 11/21/2021: Collected more data and moved existing data to spreadsheet
+- 11/28/2021: Added Features to Shiny App, including most of front page functionality.
+- 11/29/2021: Added to Project scope and created Demo 3 Presentation.
 
 **Basic Features:**
 
-- Runnable app
-- First layer
-- First layer buttons
-- Second layer
-- Link between second layer and first layer buttons
-- Third layer (image template, headline temp, and content temp)
-- Link between third layer and second layer buttons
-- University / research info
-- Info graphs
-- Put info and graphs into the app
+- Front page:
+  - Map of all programs available
+  - Choose programs based on filtering different values
+  - Browse through generated list and find programs of interest
+  - Ability to select a program to learn more
 
-
+- Data Page:
+  - More detailed information on the program of interest
+  - Program description, Application requirements, Tuition Cost, Faculty Research, Graduation Requirements
 
