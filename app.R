@@ -17,7 +17,7 @@ ui <- fluidPage(
   navbarPage(
     title = 'Team PhD',theme = shinytheme("united"),
     tabPanel("Graduate Program Finder",
-             HTML("<h1><center><b>Graduate School</b> Finder</cexnter></h1>"),
+             HTML("<h1><center><b>Graduate School</b> Finder</center></h1>"),
              br(), br(),br(), br(),
              
              ## Sidebar
@@ -80,13 +80,41 @@ ui <- fluidPage(
              )
     ),
 
-    tabPanel("Data Visualization",
-             br(), br(),br(), br()),
-
     navbarMenu("More",
-               tabPanel('Project Description'),
-               tabPanel('Design Process'),
-               tabPanel('Acknowledgements and References'),
+               tabPanel('Project Description',
+                        includeMarkdown("ProductDocument.md")
+                        ),
+               tabPanel('Design Process',
+                        HTML("<h1><center><b>Project Scope</b></center></h1>"),
+                        includeMarkdown("Projectscope.md"),
+                        br(), br(),br(), br(),
+                        HTML("<h1><center><b>Process Map</b></center></h1>"),
+                        img(src='processmap.png', style="display: block; margin-left: auto; margin-right: auto;", width = "80%", height = "80%"),
+                        br(), br(),br(), br(),
+                        HTML("<h1><center><b>Initial App Wireframe</b></center></h1>"),
+                        img(src='wireframe1.png', style="display: block; margin-left: auto; margin-right: auto;", width = "80%", height = "80%"),
+                        img(src='wireframe2.png', style="display: block; margin-left: auto; margin-right: auto;", width = "80%", height = "80%"),
+                        img(src='wireframe3.png', style="display: block; margin-left: auto; margin-right: auto;", width = "80%", height = "80%")
+                        ),
+               
+               tabPanel('Acknowledgements and References',
+                        HTML("<h1>Acknowledgements and References</h1> <br> 
+                             <h4>We thank to Professor Fernanda Eliott for her guidance, technical assistance, valuable resources, and feedback in this project.<br><br> 
+                             Also, we thank our mentor David Lin for sharing his experience and providing advice throughout the project.<br><br><br>
+                             
+                             Code Reference:<br>
+                             NCAA Swimming Team Finder for Incoming College Athletes by Greg Pilgrimname (https://shiny.rstudio.com/gallery/ncaa-swim-team-finder.html)<br><br>
+                             Navbar-example from Shiny Gallery (https://shiny.rstudio.com/gallery/navbar-example.html)<br><br>
+                             Update Input Demo (https://shiny.rstudio.com/gallery/update-input-demo.html)<br><br><br>
+                             
+                             R Packages:<br>
+                             We used ggplot2 and plotly to make an interactive map. First, we made a US map with geom_polygon() and geom_point() functions in ggplot2. Then, we made the plot interactive with ggplotly() in the plotly package. Also, we used package shinythemes to set a theme for our application. When filtering out rows, we used filter() function in dplyr package. Lastly, we used the DT package to show datatable in our app.
+                            
+                             
+                             </h4>"
+                             ),
+                        
+                        ),
                tabPanel('Reflection'))
   )
   
@@ -176,7 +204,7 @@ server <- function(input, output, session){
     d <- event_data("plotly_click", source = "Plot1")
     
     if (is.null(d)) {
-      "Click Point to See Detailed Information"
+      "Click a Point to See Detailed Information"
     } else {
       str1 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(22)])
       str2 <- paste(gradData_finder()[gradData_finder()$lon==d$x,][,c(23)])
