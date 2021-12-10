@@ -86,7 +86,7 @@ ui <- fluidPage(
                         ),
                tabPanel('Design Process',
                         HTML("<h1><center><b>Project Scope</b></center></h1>"),
-                        includeMarkdown("Projectscope.md"),
+                        includeMarkdown("ProjectScope.md"),
                         br(), br(),br(), br(),
                         HTML("<h1><center><b>Process Map</b></center></h1>"),
                         img(src='processmap.png', style="display: block; margin-left: auto; margin-right: auto;", width = "80%", height = "80%"),
@@ -112,10 +112,20 @@ ui <- fluidPage(
                             
                              
                              </h4>"
-                             ),
+                             )
                         
                         ),
-               tabPanel('Reflection'))
+               tabPanel('Reflection',
+                        HTML("<h1>Reflection</h1> <br> 
+                             <h4>Our group's workflow organization was to separate into two teams based on the two main tasks we have: collecting the information and building the app. For the first task, we largely underestimated the time to collect information about different graduate programs online, so we have to cut the numbers of graduate programs featured in our app. However, this also proves the potential of this app. Hours could be saved for a user by finding information in our app instead of wasting them sifting through graduate program websites. And for the second task, we spent a lot of time making the map more helpful to users. And for the other group, we also had the problem that some of the features we originally designed could not be accomplished. For example, we planned to do a clickable map. We originally planned that when you click the icon on the map, the app will jump to another detail page about the school. But now we decided to put the detail page below the map after clicking the map. Our process has been that the two groups meet and talk about the process every Wednesday and it has been working to keep us productive and connected as a team. We would talk about what we did for the last week and make a plan for the future week. Meanwhile, the project scope is updated every week so that we can keep up with what others are doing and have the deadlines in mind. <br><br>
+                             During the development, we solved multiple problems. In the beginning, slide bars are not working fine. The slide bar for deadlines could not have a correct start date. However, after hours of research, we fixed the problem and now the default start date would be the date today so that users would not see any programs that have already passed or are not applicable. <br><br>
+                             The main structure of our project contains two parts, the searching tools, and the information section. Since our application wants to offer a selection of refined resources, our selection section offers multiple ways to filter the information, including the deadline, tuition fee, application requirements, etc. Meanwhile, the information section would contain brief details about the university, the program, and a picture of the campus. On the bottom, our application would offer the featured professors from the program and the contact information of which. If someone wants to know more about the program, the link to the official program website would also be listed. <br><br>
+                             In the future, we want to add the comparison feature. When multiple programs are selected, the user could go into a comparison tab and the features of the programs would be listed in a table so that the user could compare them easily. If time is available, we would also make the detailed information be shown on another pop-up page when the icon on the map is clicked.<br><br>
+                             One thing that our group is proud of is the information we gathered during such a short period. The user can directly view the location of each program, select the programs they want based on multiple choices. After choosing the program, the user could find detailed, filtered information about it. Using the link we provide, the user can go straight to the application page and apply for the program. 
+<br>
+
+                             </h4>"
+                        )))
   )
   
 )
