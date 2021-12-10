@@ -2,7 +2,6 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 library(DT)
-library(ggrepel)
 library(tidyr)
 library(shinycssloaders)
 library(shinythemes)
@@ -253,7 +252,7 @@ server <- function(input, output, session){
     
   output$table <- renderDataTable({
     gradData[c(1,2,3,4,8,9,10,11,12)]})
-  
+    
   
 }
   
